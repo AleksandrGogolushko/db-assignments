@@ -87,7 +87,7 @@ async function task_1_4(db) {
         SELECT
             CustomerID AS "Customer Id",
             COUNT(OrderID) AS "Total number of Orders",
-            ROUND((count(OrderID)*100)/(select count(*) from orders),5) AS "% of all orders"
+            ROUND((count(OrderID)*100)/(select count(*) from Orders),5) AS "% of all orders"
         FROM Orders
         GROUP BY CustomerID
         ORDER BY \`% of all orders\` desc, CustomerID
@@ -444,7 +444,7 @@ async function task_1_21(db) {
         SELECT 
             OrderID,
             SUM(UnitPrice*Quantity) AS "Maximum Purchase Amount, $"
-        FROM Orderdetails 
+        FROM OrderDetails 
         GROUP BY OrderID
         ORDER BY \`Maximum Purchase Amount, $\` DESC LIMIT 1
 `);
