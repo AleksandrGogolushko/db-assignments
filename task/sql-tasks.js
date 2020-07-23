@@ -48,7 +48,7 @@ async function task_1_2(db) {
             OrderId AS "Order Id",
             SUM(UnitPrice*Quantity) AS "Order Total Price",
             ROUND((SUM(Discount*Quantity)*100)/SUM(UnitPrice*Quantity),3)  AS "Total Order Discount, %"
-        FROM orderdetails
+        FROM OrderDetails
         GROUP BY OrderId
         ORDER BY orderID DESC
 `);
@@ -66,7 +66,7 @@ async function task_1_3(db) {
     let result = await db.query(`
         SELECT 
              CustomerId, CompanyName
-        FROM customers 
+        FROM Customers 
         WHERE Country = "USA" AND Fax IS NULL
 `);
 return result[0];
@@ -88,7 +88,7 @@ async function task_1_4(db) {
             CustomerID AS "Customer Id",
             COUNT(OrderID) AS "Total number of Orders",
             ROUND((count(OrderID)*100)/(select count(*) from orders),5) AS "% of all orders"
-        FROM orders
+        FROM Orders
         GROUP BY CustomerID
         ORDER BY \`% of all orders\` desc, CustomerID
 `);
@@ -108,7 +108,7 @@ async function task_1_5(db) {
            ProductID as "ProductId",
            ProductName,
            QuantityPerUnit
-        FROM products
+        FROM Products
         WHERE productName  REGEXP "^[A-F]"
         ORDER BY productName
 `);
@@ -130,9 +130,9 @@ async function task_1_6(db) {
             p.ProductName,
             c.CategoryName,
             s.CompanyName AS "SupplierCompanyName"
-        FROM products p
-        JOIN categories c ON p.CategoryID = c.CategoryID
-        JOIN suppliers s ON p.SupplierID = s.SupplierID
+        FROM Products p
+        JOIN Categories c ON p.CategoryID = c.CategoryID
+        JOIN Suppliers s ON p.SupplierID = s.SupplierID
         ORDER BY ProductName
 `);
 return result[0];
@@ -155,8 +155,8 @@ async function task_1_7(db) {
             e.EmployeeId,
             CONCAT(e.FirstName, ' ', e.LastName) AS "FullName", 
             IF(e.ReportsTo IS NULL, "-", CONCAT(e2.FirstName, ' ', e2.LastName)) AS ReportsTo
-        FROM employees e 
-        LEFT JOIN employees e2 ON e.ReportsTo = e2.EmployeeID
+        FROM Employees e 
+        LEFT JOIN Employees e2 ON e.ReportsTo = e2.EmployeeID
         ORDER BY e.EmployeeID
 `);
 return result[0];
@@ -175,8 +175,8 @@ async function task_1_8(db) {
         SELECT 
             c.CategoryName,
             COUNT(c.CategoryID) AS "TotalNumberOfProducts"
-        FROM categories c
-        LEFT JOIN products p ON  p.CategoryID = c.CategoryID
+        FROM Categories c
+        LEFT JOIN Products p ON  p.CategoryID = c.CategoryID
         GROUP BY CategoryName
         ORDER BY CategoryName
 `);
@@ -196,7 +196,7 @@ async function task_1_9(db) {
         SELECT 
             CustomerID,
             ContactName
-        FROM customers
+        FROM Customers
         WHERE ContactName REGEXP "^F..n"
 `);
 return result[0];
@@ -214,7 +214,7 @@ async function task_1_10(db) {
         SELECT 
             ProductID,
             ProductName
-        FROM products
+        FROM Products
         WHERE Discontinued > 0
 `);
 return result[0];
@@ -234,7 +234,7 @@ async function task_1_11(db) {
         SELECT 
             ProductName,
             UnitPrice
-        FROM products
+        FROM Products
         WHERE UnitPrice BETWEEN 5 and 15
         ORDER BY UnitPrice, ProductName
 `);
@@ -255,7 +255,7 @@ async function task_1_12(db) {
         SELECT 
             e.UnitPrice,
             e.ProductName
-        FROM (SELECT p.UnitPrice, p.ProductName FROM products p ORDER BY p.UnitPrice DESC LIMIT 20)e
+        FROM (SELECT p.UnitPrice, p.ProductName FROM Products p ORDER BY p.UnitPrice DESC LIMIT 20)e
         ORDER BY UnitPrice, ProductName
 `);
 return result[0];
@@ -273,7 +273,7 @@ async function task_1_13(db) {
         SELECT 
             COUNT (*) as "TotalOfCurrentProducts",
             COUNT (IF (Discontinued > 0, 1, null) ) as "TotalOfDiscontinuedProducts"
-        FROM products
+        FROM Products
 `);
 return result[0];
 }
@@ -291,7 +291,7 @@ async function task_1_14(db) {
             ProductName,
             UnitsOnOrder,
             UnitsInStock
-        FROM products
+        FROM Products
         WHERE UnitsInStock < UnitsOnOrder
 `);
 return result[0];
@@ -319,7 +319,7 @@ async function task_1_15(db) {
             COUNT(IF(MONTH(OrderDate) = 10,1,null)) as "October",
             COUNT(IF(MONTH(OrderDate) = 11,1,null)) as "November",
             COUNT(IF(MONTH(OrderDate) = 12,1,null)) as "December"
-        FROM orders
+        FROM Orders
         WHERE YEAR(OrderDate) = 1997
 `);
 return result[0];
@@ -338,7 +338,7 @@ async function task_1_16(db) {
             OrderID,
             CustomerID,
             ShipCountry
-        FROM orders
+        FROM Orders
         WHERE ShipPostalCode IS NOT NULL
 `);
 return result[0];
@@ -358,8 +358,8 @@ async function task_1_17(db) {
         SELECT 
             c.CategoryName,
             AVG(p.UnitPrice) AS AvgPrice
-        FROM products p
-        LEFT JOIN categories c ON p.CategoryID = c.CategoryID
+        FROM Products p
+        LEFT JOIN Categories c ON p.CategoryID = c.CategoryID
         GROUP BY CategoryName
         ORDER BY AvgPrice DESC, CategoryName
 `);
@@ -379,7 +379,7 @@ async function task_1_18(db) {
         SELECT 
             DATE_FORMAT(OrderDate, "%Y-%m-%d %T") AS OrderDate ,
             COUNT(OrderDate) AS "Total Number of Orders"
-        FROM orders
+        FROM Orders
         WHERE YEAR(OrderDate) = 1998
         GROUP BY OrderDate
 `);
@@ -400,9 +400,9 @@ async function task_1_19(db) {
             c.CustomerID,
             c.CompanyName,
             SUM(od.UnitPrice*od.Quantity) AS "TotalOrdersAmount, $"
-        FROM customers c
-        JOIN orders o ON c.CustomerID = o.CustomerID
-        JOIN orderdetails od ON o.OrderID = od.OrderID
+        FROM Customers c
+        JOIN Orders o ON c.CustomerID = o.CustomerID
+        JOIN OrderDetails od ON o.OrderID = od.OrderID
         GROUP BY c.CustomerID
         HAVING \`TotalOrdersAmount, $\` > 10000
         ORDER BY \`TotalOrdersAmount, $\` DESC, CustomerID
@@ -424,9 +424,9 @@ async function task_1_20(db) {
             e.EmployeeID,
             CONCAT(e.FirstName, ' ', e.LastName) AS "Employee Full Name", 
             SUM(od.UnitPrice * od.Quantity) AS "Amount, $"
-        FROM employees e
-        JOIN orders o ON o.EmployeeID = e.EmployeeID
-        JOIN orderdetails od ON o.OrderID = od.OrderID
+        FROM Employees e
+        JOIN Orders o ON o.EmployeeID = e.EmployeeID
+        JOIN OrderDetails od ON o.OrderID = od.OrderID
         GROUP BY EmployeeID
         ORDER BY \`Amount, $\` DESC LIMIT 1
 `);
@@ -444,7 +444,7 @@ async function task_1_21(db) {
         SELECT 
             OrderID,
             SUM(UnitPrice*Quantity) AS "Maximum Purchase Amount, $"
-        FROM orderdetails 
+        FROM Orderdetails 
         GROUP BY OrderID
         ORDER BY \`Maximum Purchase Amount, $\` DESC LIMIT 1
 `);
@@ -464,20 +464,20 @@ async function task_1_22(db) {
             DISTINCT c.CompanyName,
             p.ProductName,
             od.UnitPrice AS PricePerItem
-        FROM orderdetails od
-        LEFT JOIN orderdetails od2 ON od.OrderID = od2.OrderID AND od.UnitPrice < od2.UnitPrice
-        LEFT JOIN orders o ON od.OrderID = o.OrderID
+        FROM OrderDetails od
+        LEFT JOIN OrderDetails od2 ON od.OrderID = od2.OrderID AND od.UnitPrice < od2.UnitPrice
+        LEFT JOIN Orders o ON od.OrderID = o.OrderID
         LEFT JOIN (SELECT
             od.OrderID,
             od.ProductID,
             od.UnitPrice,
             o.CustomerID
-        FROM orderdetails od
-        LEFT JOIN orderdetails od2 ON od.OrderID = od2.OrderID AND od.UnitPrice < od2.UnitPrice
-        LEFT JOIN orders o ON od.OrderID = o.OrderID
+        FROM OrderDetails od
+        LEFT JOIN OrderDetails od2 ON od.OrderID = od2.OrderID AND od.UnitPrice < od2.UnitPrice
+        LEFT JOIN Orders o ON od.OrderID = o.OrderID
         WHERE od2.OrderID IS NULL) e ON o.CustomerID = e.CustomerID AND od.UnitPrice < e.UnitPrice
-        LEFT JOIN customers c ON o.CustomerID = c.CustomerID
-        LEFT JOIN products p ON od.ProductID = p.ProductID
+        LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
+        LEFT JOIN Products p ON od.ProductID = p.ProductID
         WHERE od2.OrderID IS NULL AND e.OrderID IS NULL
         ORDER BY PricePerItem DESC, CompanyName, ProductName 
 `);
