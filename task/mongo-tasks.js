@@ -34,7 +34,7 @@ async function task_1_1(db) {
     // The first task is example, please follow the style in the next functions.
     const result = await db.collection('employees').aggregate([
         {
-            $project: {
+          $project: {
                 _id: 0,
                 EmployeeID: 1,
                 "Employee Full Name": {$concat: ["$FirstName", " ", "$LastName"]},
