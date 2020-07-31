@@ -21,7 +21,7 @@
  * Test timeout is increased to 15sec for the function.
  * */
 async function before(db) {
-    await db.collection('employees').ensureIndex({ CustomerID: 1 });
+    await db.collection('employees').ensureIndex({CustomerID: 1});
 }
 
 /**
@@ -37,12 +37,12 @@ async function task_1_1(db) {
             $project: {
                 _id: 0,
                 EmployeeID: 1,
-                "Employee Full Name": { $concat: ["$FirstName", " ", "$LastName"] },
+                "Employee Full Name": {$concat: ["$FirstName", " ", "$LastName"]},
                 Title: 1,
-                City: { $ifNull: ['$City', "Unspecified"] }
+                City: {$ifNull: ['$City', "Unspecified"]}
             }
         },
-        { $sort: { City: 1, "Employee Full Name": 1 } }
+        {$sort: {City: 1, "Employee Full Name": 1}}
     ]).toArray();
     return result;
 }
