@@ -461,27 +461,24 @@ return result[0]
  */
 async function task_1_22(db) {
     let result = await db.query(`
-        SELECT
-            DISTINCT c.CompanyName,
-            p.ProductName,
-            od.UnitPrice AS PricePerItem
-        FROM OrderDetails od
-        LEFT JOIN OrderDetails od2 ON od.OrderID = od2.OrderID AND od.UnitPrice < od2.UnitPrice
-        LEFT JOIN Orders o ON od.OrderID = o.OrderID
-        LEFT JOIN (SELECT
-            od.OrderID,
-            od.ProductID,
-            od.UnitPrice,
-            o.CustomerID
-        FROM OrderDetails od
-        LEFT JOIN OrderDetails od2 ON od.OrderID = od2.OrderID AND od.UnitPrice < od2.UnitPrice
-        LEFT JOIN Orders o ON od.OrderID = o.OrderID
-        WHERE od2.OrderID IS NULL) e ON o.CustomerID = e.CustomerID AND od.UnitPrice < e.UnitPrice
-        LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
-        LEFT JOIN Products p ON od.ProductID = p.ProductID
-        WHERE od2.OrderID IS NULL AND e.OrderID IS NULL
-        ORDER BY PricePerItem DESC, CompanyName, ProductName 
-`);
+        SELECT DISTINCT
+            CompanyName,
+            Products.ProductName,
+            OrderDetails.UnitPrice AS "PricePerItem"
+        FROM Customers
+         INNER JOIN Orders on Customers.CustomerID = Orders.CustomerID
+         INNER JOIN OrderDetails on Orders.OrderID = OrderDetails.OrderID
+         INNER JOIN Products on  Products.ProductID = OrderDetails.ProductID
+        WHERE OrderDetails.UnitPrice = (
+            SELECT
+                MAX(ordrDtls.UnitPrice)
+            FROM Customers cstmrs
+             INNER JOIN Orders ordrs on cstmrs.CustomerID = ordrs.CustomerID
+             INNER JOIN OrderDetails ordrDtls on ordrs.OrderID = ordrDtls.OrderID
+            WHERE Customers.CompanyName = cstmrs.CompanyName
+          ) 
+        ORDER BY PricePerItem DESC, CompanyName, Products.ProductName`
+);
 return result[0]
 }
 
