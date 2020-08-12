@@ -475,7 +475,7 @@ async function task_1_22(db) {
             FROM Customers cstmrs
              INNER JOIN Orders ordrs on cstmrs.CustomerID = ordrs.CustomerID
              INNER JOIN OrderDetails ordrDtls on ordrs.OrderID = ordrDtls.OrderID
-            WHERE Customers.CompanyName = cstmrs.CompanyName
+            WHERE Customers.CustomerID = cstmrs.CustomerID
           ) 
         ORDER BY PricePerItem DESC, CompanyName, Products.ProductName`
 );
