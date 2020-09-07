@@ -24,6 +24,7 @@ async function before(db) {
     await db.collection('employees').ensureIndex({CustomerID: 1});
     await db.collection('orders').createIndex({OrderID: 1});
     await db.collection('orders').createIndex({CustomerID: 1});
+    await db.collection('orders').createIndex({EmployeeID: 1});
 }
 
 /**
