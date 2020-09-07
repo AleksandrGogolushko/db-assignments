@@ -22,6 +22,8 @@
  * */
 async function before(db) {
     await db.collection('employees').ensureIndex({CustomerID: 1});
+    await db.collection('orders').createIndex({OrderID: 1});
+    await db.collection('orders').createIndex({CustomerID: 1});
 }
 
 /**
@@ -109,27 +111,23 @@ async function task_1_3(db) {
  *
  */
 async function task_1_4(db) {
-    const result = await db.collection('orders').aggregate([
+    const countAllOrders = await db.collection("orders").countDocuments();
+    const result = await db.collection("orders").aggregate([
         {
             $group: {
                 _id: "$CustomerID",
-                total: {$sum: 1}
+               count: { $sum: 1 }
             }
-        }, {
-            $lookup: {
-                from: 'orders',
-                localField: 'string',
-                foreignField: 'string',
-                as: 'AllOrders'
-            }
-        }, {
+        },
+        {
             $project: {
                 _id: 0,
                 "Customer Id": "$_id",
-                "Total number of Orders": "$total",
-                "% of all orders": {$round: [{$divide: [{$multiply: ["$total", 100]}, {$size: "$AllOrders"}]}, 3]}
+                "Total number of Orders": "$count",
+                "% of all orders": {$round: [{$divide: [{ $multiply: ["$count", 100] }, countAllOrders ]}, 3]}
             }
-        }, {$sort: {"% of all orders": -1,"Customer Id":1}}
+        },
+        { $sort: {"% of all orders": -1, "Customer Id": 1} }
     ]).toArray();
     return result;
 }
