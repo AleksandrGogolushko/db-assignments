@@ -16,8 +16,6 @@ const ObjectId = require('mongodb').ObjectID;
  * */
 async function before(db) {
     await db.collection('opportunities').createIndex({ 'initiativeId': 1, "contacts.questions.category_id": 1, "contacts.datePublished": 1 });
-    // await db.collection('clientCriteria').createIndex({ "versions.initiativeId": 1 });
-    // await db.collection('clientCriteria').createIndex({ "value": 1});
     await db.collection('clientCriteria').createIndex({'value': 1,'versions.initiativeId': 1});
 }
 
@@ -45,14 +43,10 @@ async function task_3_1(db) {
     const result = await db.collection('opportunities').aggregate([{
         $match: {
             "initiativeId": ObjectId("58af4da0b310d92314627290"),
-            "contacts.questions.category_id": {
-                "$in": [105,147]
-            },
             "contacts": {
-                "$elemMatch": {
-                    "datePublished": {"$ne": null}
-                }
-            }
+                "$elemMatch": {"datePublished": {"$ne": null}}
+            },
+            "contacts.questions.category_id": {"$in": [105,147]},
         }
     }, {
         $project: {
@@ -239,7 +233,7 @@ async function task_3_1(db) {
             pipeline: [
                 {
                     $match: {
-                        "versions.initiativeId": ObjectId("58af4da0b310d92314627290")
+                        "versions.initiativeId": ObjectId("58af4da0b310d92314627290"),
                     }
                 },
                 {
