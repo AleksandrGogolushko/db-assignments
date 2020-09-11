@@ -16,7 +16,7 @@ const ObjectId = require('mongodb').ObjectID;
  * */
 async function before(db) {
     await db.collection('opportunities').createIndex({ 'initiativeId': 1, "contacts.questions.category_id": 1, "contacts.datePublished": 1 });
-    await db.collection('clientCriteria').createIndex({'value': 1,'versions.initiativeId': 1});
+    await db.collection('clientCriteria').createIndex({'versions.initiativeId': 1,'value': 1});
 }
 
 /**
@@ -229,13 +229,13 @@ async function task_3_1(db) {
         $lookup:
         {
             "from": "clientCriteria",
-            let: { v1: "$criteria_value" },
-            pipeline: [
+             let: {v1: "$criteria_value"},
+             pipeline: [
                 {
-                    $match: {
-                        "versions.initiativeId": ObjectId("58af4da0b310d92314627290"),
-                    }
-                },
+                    $match:{$and:[{"versions.initiativeId" : ObjectId("58af4da0b310d92314627290")},
+                    {$expr: {$eq: ["$value","$$v1" ]}}]
+                }
+               },
                 {
                     $project: {
                         "value": 1,
@@ -243,12 +243,9 @@ async function task_3_1(db) {
                         "definition": 1,
                         "versions.definition": 1,
                     }
-                },
-                {
-                    $match: {
-                        $expr: { $eq: ["$value", "$$v1"] }
-                    }
-                },
+                },{
+                    $limit:1
+                }
             ],
             "as": "criteria"
         }
