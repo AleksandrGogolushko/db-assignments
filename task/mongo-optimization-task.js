@@ -231,11 +231,11 @@ async function task_3_1(db) {
             "from": "clientCriteria",
              let: {v1: "$criteria_value"},
              pipeline: [
-                {
-                    $match:{$and:[{"versions.initiativeId" : ObjectId("58af4da0b310d92314627290")},
-                    {$expr: {$eq: ["$value","$$v1" ]}}]
-                }
-               },
+                 {
+                     $match: {
+                          "versions.initiativeId": ObjectId("58af4da0b310d92314627290") 
+                     }
+                 },
                 {
                     $project: {
                         "value": 1,
@@ -243,9 +243,11 @@ async function task_3_1(db) {
                         "definition": 1,
                         "versions.definition": 1,
                     }
-                },{
-                    $limit:1
-                }
+                }, {
+                    $match: {
+                        $expr: { $eq: ["$value", "$$v1"] } 
+                    }
+                },
             ],
             "as": "criteria"
         }
